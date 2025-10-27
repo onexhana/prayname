@@ -1,0 +1,24 @@
+{
+  "name": "prayname",
+  "version": "1.0.0",
+  "description": "수험생 명단 관리 사이트",
+  "main": "server/server.js",
+  "scripts": {
+    "install-all": "cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && node server.js",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\""
+  },
+  "keywords": [
+    "수험생",
+    "명단",
+    "기도",
+    "React",
+    "Express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

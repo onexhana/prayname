@@ -1,0 +1,7 @@
+{
+  "scrollSpeed": 600,
+  "fontSize": 2,
+  "mobileScrollSpeed": 900,
+  "mobileFontSize": 1.5,
+  "mobileStudentsPerRow": 3
+}
