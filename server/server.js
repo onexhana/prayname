@@ -117,10 +117,19 @@ function readSettings() {
 // 설정 쓰기 함수
 function writeSettings(settings) {
   try {
+    // Vercel 서버리스 환경에서는 data 디렉토리가 존재하는지 확인
+    const dataDir = path.dirname(settingsPath);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+    console.log('설정 저장 성공:', settingsPath);
     return true;
   } catch (error) {
     console.error('설정 쓰기 오류:', error);
+    console.error('오류 상세:', error.message);
+    console.error('경로:', settingsPath);
     return false;
   }
 }
@@ -385,6 +394,7 @@ app.get('/api/settings', (req, res) => {
 // 7. 설정 업데이트
 app.put('/api/settings', (req, res) => {
   try {
+    console.log('설정 업데이트 요청:', req.body);
     const { scrollSpeed, fontSize, studentsPerRow, mobileScrollSpeed, mobileFontSize, mobileStudentsPerRow } = req.body;
     
     if (scrollSpeed && (scrollSpeed < 30 || scrollSpeed > 1800)) {
@@ -412,6 +422,8 @@ app.put('/api/settings', (req, res) => {
     }
 
     const currentSettings = readSettings();
+    console.log('현재 설정:', currentSettings);
+    
     const updatedSettings = {
       scrollSpeed: scrollSpeed !== undefined ? scrollSpeed : currentSettings.scrollSpeed,
       fontSize: fontSize !== undefined ? fontSize : currentSettings.fontSize,
@@ -421,18 +433,24 @@ app.put('/api/settings', (req, res) => {
       mobileStudentsPerRow: mobileStudentsPerRow !== undefined ? mobileStudentsPerRow : currentSettings.mobileStudentsPerRow
     };
     
+    console.log('업데이트할 설정:', updatedSettings);
+    console.log('설정 파일 경로:', settingsPath);
+    
     if (writeSettings(updatedSettings)) {
+      console.log('설정 저장 성공');
       res.json({ 
         success: true, 
         message: '설정이 업데이트되었습니다.',
         settings: updatedSettings
       });
     } else {
+      console.error('설정 저장 실패');
       res.status(500).json({ error: '설정 저장에 실패했습니다.' });
     }
   } catch (error) {
     console.error('설정 업데이트 오류:', error);
-    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    console.error('오류 스택:', error.stack);
+    res.status(500).json({ error: '서버 오류가 발생했습니다. ' + error.message });
   }
 });
 
