@@ -474,13 +474,16 @@ if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
 }
 
 // Vercel 서버리스 함수로 export 또는 로컬 서버 시작
-// Vercel 환경에서는 항상 export
-if (process.env.VERCEL || process.env.VERCEL_ENV) {
-  console.log('Vercel 환경으로 서버리스 함수로 export합니다.');
+// Vercel 환경 감지
+if (process.env.VERCEL || process.env.VERCEL_ENV || process.env.VERCEL_URL) {
+  console.log('Vercel 환경 감지 - 서버리스 함수로 export');
+  // Express 앱을 직접 export (Vercel이 자동으로 래핑)
   module.exports = app;
 } else {
   // 로컬 개발 서버 시작
-  app.listen(PORT, () => {
-    console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
-  });
+  if (!module.parent) {
+    app.listen(PORT, () => {
+      console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
+    });
+  }
 }
