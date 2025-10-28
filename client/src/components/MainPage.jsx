@@ -78,6 +78,11 @@ const MainPage = () => {
     return groups;
   };
 
+  // 현재 사용할 설정값 (모바일/데스크톱 구분) - 먼저 계산
+  const currentScrollSpeed = isMobile ? settings.mobileScrollSpeed : settings.scrollSpeed;
+  const currentFontSize = isMobile ? settings.mobileFontSize : settings.fontSize;
+  const groupSize = isMobile ? settings.mobileStudentsPerRow : (settings.studentsPerRow || 7);
+  
   // 설정이 변경되면 강제로 재렌더링되도록 key 사용
   const settingsKey = `${currentScrollSpeed}-${currentFontSize}-${groupSize}-${isMobile}`;
 
@@ -88,13 +93,8 @@ const MainPage = () => {
     infiniteStudents.push(...students);
   }
   
-  // 모바일/데스크톱에 따라 다른 그룹 크기 사용
-  const groupSize = isMobile ? settings.mobileStudentsPerRow : (settings.studentsPerRow || 7);
+  // 명단을 그룹화
   const studentGroups = groupStudents(infiniteStudents, groupSize);
-  
-  // 현재 사용할 설정값 (모바일/데스크톱 구분)
-  const currentScrollSpeed = isMobile ? settings.mobileScrollSpeed : settings.scrollSpeed;
-  const currentFontSize = isMobile ? settings.mobileFontSize : settings.fontSize;
   
   console.log('현재 설정:', { isMobile, currentScrollSpeed, currentFontSize, groupSize });
 
