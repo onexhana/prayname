@@ -455,7 +455,9 @@ if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
 }
 
 // Vercel 서버리스 함수로 export 또는 로컬 서버 시작
-if (process.env.VERCEL) {
+// Vercel 환경에서는 항상 export
+if (process.env.VERCEL || process.env.VERCEL_ENV) {
+  console.log('Vercel 환경으로 서버리스 함수로 export합니다.');
   module.exports = app;
 } else {
   // 로컬 개발 서버 시작

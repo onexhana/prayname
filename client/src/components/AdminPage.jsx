@@ -43,22 +43,31 @@ const AdminPage = () => {
 
   const fetchStudents = async () => {
     try {
+      console.log('API 호출:', `${API_BASE_URL}/api/students`);
       const response = await axios.get(`${API_BASE_URL}/api/students`);
-      setStudents(response.data.students);
-      setFilteredStudents(response.data.students);
+      console.log('응답 데이터:', response.data);
+      setStudents(response.data.students || []);
+      setFilteredStudents(response.data.students || []);
     } catch (error) {
       console.error('명단 조회 오류:', error);
-      showMessage('명단을 불러오는데 실패했습니다.', 'error');
+      console.error('오류 상세:', error.response?.data || error.message);
+      showMessage('명단을 불러오는데 실패했습니다. ' + (error.response?.data?.error || error.message), 'error');
+      setStudents([]);
+      setFilteredStudents([]);
     }
   };
 
   const fetchSettings = async () => {
     try {
+      console.log('설정 API 호출:', `${API_BASE_URL}/api/settings`);
       const response = await axios.get(`${API_BASE_URL}/api/settings`);
+      console.log('설정 응답:', response.data);
       setSettings(response.data);
     } catch (error) {
       console.error('설정 조회 오류:', error);
-      showMessage('설정을 불러오는데 실패했습니다.', 'error');
+      console.error('오류 상세:', error.response?.data || error.message);
+      // 설정 조회 실패해도 기본값 사용
+      showMessage('설정을 불러오는데 실패했습니다. 기본 설정을 사용합니다.', 'error');
     }
   };
 
@@ -239,6 +248,19 @@ const AdminPage = () => {
 
   if (!isLoggedIn) {
     return <Login onLogin={() => setIsLoggedIn(true)} />;
+  }
+
+  // 로딩 중이거나 데이터가 없을 때
+  if (loading && students.length === 0) {
+    return (
+      <div className="admin-container">
+        <div className="admin-header">
+          <h1 className="admin-title">관리자 페이지</h1>
+          <p className="admin-subtitle">데이터를 불러오는 중...</p>
+        </div>
+        <div className="loading" style={{ margin: '2rem auto' }}></div>
+      </div>
+    );
   }
 
   return (

@@ -27,6 +27,14 @@ if (!fs.existsSync(dataDir)) {
   }
 }
 
+// VERCEL 환경변수 설정
+process.env.VERCEL = true;
+process.env.VERCEL_ENV = true;
+
 const app = require('../server/server');
-module.exports = app;
+
+// Vercel 서버리스 함수 핸들러
+module.exports = (req, res) => {
+  return app(req, res);
+};
 
