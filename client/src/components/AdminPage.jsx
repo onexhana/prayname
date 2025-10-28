@@ -38,6 +38,7 @@ const AdminPage = () => {
       fetchStudents();
       fetchSettings();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
 
   const fetchStudents = async () => {
