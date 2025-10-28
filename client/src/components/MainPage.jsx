@@ -78,9 +78,10 @@ const MainPage = () => {
     return groups;
   };
 
-  // 명단을 10번 복제하여 진짜 무한 스크롤 구현
+  // 명단을 복제하여 무한 스크롤 구현 (모바일에서는 적게 복제)
   const infiniteStudents = [];
-  for (let i = 0; i < 10; i++) {
+  const copyCount = isMobile ? 3 : 10; // 모바일은 3번, 데스크톱은 10번
+  for (let i = 0; i < copyCount; i++) {
     infiniteStudents.push(...students);
   }
   
