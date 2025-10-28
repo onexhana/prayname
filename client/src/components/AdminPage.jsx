@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Login from './Login';
+import API_BASE_URL from '../config';
 
 const AdminPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -41,7 +42,7 @@ const AdminPage = () => {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/students');
+      const response = await axios.get(`${API_BASE_URL}/api/students`);
       setStudents(response.data.students);
       setFilteredStudents(response.data.students);
     } catch (error) {
@@ -52,7 +53,7 @@ const AdminPage = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/settings');
+      const response = await axios.get(`${API_BASE_URL}/api/settings`);
       setSettings(response.data);
     } catch (error) {
       console.error('설정 조회 오류:', error);
@@ -78,7 +79,7 @@ const AdminPage = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/students', { 
+      const response = await axios.post(`${API_BASE_URL}/api/students`, { 
         name: newStudentName.trim() 
       });
       
@@ -111,7 +112,7 @@ const AdminPage = () => {
     formData.append('file', uploadFile);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/students/upload', formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/students/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -146,7 +147,7 @@ const AdminPage = () => {
     }
 
     try {
-      const response = await axios.delete(`http://localhost:5000/api/students/${encodeURIComponent(studentName)}`);
+      const response = await axios.delete(`${API_BASE_URL}/api/students/${encodeURIComponent(studentName)}`);
       
       if (response.data.success) {
         setStudents(response.data.students);
@@ -167,7 +168,7 @@ const AdminPage = () => {
     setSettingsLoading(true);
     
     try {
-      const response = await axios.put('http://localhost:5000/api/settings', settings);
+      const response = await axios.put(`${API_BASE_URL}/api/settings`, settings);
       
       if (response.data.success) {
         setSettings(response.data.settings);
@@ -218,7 +219,7 @@ const AdminPage = () => {
     }
 
     try {
-      const response = await axios.delete('http://localhost:5000/api/students');
+      const response = await axios.delete(`${API_BASE_URL}/api/students`);
       
       if (response.data.success) {
         setStudents(response.data.students);

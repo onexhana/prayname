@@ -10,19 +10,35 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // 미들웨어 설정
-app.use(cors());
+const corsOptions = {
+  origin: process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : process.env.NODE_ENV === 'production'
+    ? true // 프로덕션에서는 모든 origin 허용 (Vercel 도메인)
+    : true, // 개발 환경에서는 모든 origin 허용
+  credentials: true
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // multer 설정 (엑셀 파일 업로드용)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
+// Vercel 서버리스 환경에서는 메모리 스토리지 사용
+const storage = process.env.VERCEL 
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        // uploads 디렉토리가 없으면 생성
+        const uploadDir = path.join(__dirname, 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+      },
+      filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+      }
+    });
 
 const upload = multer({ 
   storage: storage,
@@ -199,20 +215,32 @@ app.post('/api/students', (req, res) => {
 
 // 4. 엑셀 파일 업로드 및 일괄 추가
 app.post('/api/students/upload', upload.single('file'), (req, res) => {
+  let tempFilePath = null;
+  
   try {
     if (!req.file) {
-      return res.status(400).json({ error: '파일을 선택해주세요.' });
+    return res.status(400).json({ error: '파일을 선택해주세요.' });
     }
 
-    const filePath = req.file.path;
-    const workbook = xlsx.readFile(filePath);
+    let workbook;
+    // Vercel 서버리스 환경에서는 메모리에서 읽기
+    if (req.file.buffer) {
+      workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    } else {
+      // 로컬 환경에서는 파일 경로에서 읽기
+      tempFilePath = req.file.path;
+      workbook = xlsx.readFile(tempFilePath);
+    }
+    
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = xlsx.utils.sheet_to_json(worksheet);
 
     if (jsonData.length === 0) {
-      // 업로드 파일 삭제
-      fs.unlinkSync(filePath);
+      // 업로드 파일 삭제 (로컬 환경에서만)
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
       return res.status(400).json({ error: '엑셀 파일에 데이터가 없습니다.' });
     }
 
@@ -229,8 +257,10 @@ app.post('/api/students/upload', upload.single('file'), (req, res) => {
     }
 
     if (!nameColumn) {
-      // 업로드 파일 삭제
-      fs.unlinkSync(filePath);
+      // 업로드 파일 삭제 (로컬 환경에서만)
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
       return res.status(400).json({ error: '엑셀 파일에서 "이름" 열을 찾을 수 없습니다.' });
     }
 
@@ -241,8 +271,10 @@ app.post('/api/students/upload', upload.single('file'), (req, res) => {
       .map(name => name.trim());
 
     if (names.length === 0) {
-      // 업로드 파일 삭제
-      fs.unlinkSync(filePath);
+      // 업로드 파일 삭제 (로컬 환경에서만)
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
       return res.status(400).json({ error: '유효한 이름이 없습니다.' });
     }
 
@@ -256,8 +288,10 @@ app.post('/api/students/upload', upload.single('file'), (req, res) => {
     data.students = [...data.students, ...newStudents];
 
     if (writeData(data)) {
-      // 업로드 파일 삭제
-      fs.unlinkSync(filePath);
+      // 업로드 파일 삭제 (로컬 환경에서만)
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
       
       // 가나다 순으로 정렬된 목록 반환
       const sortedStudents = data.students.sort((a, b) => a.localeCompare(b, 'ko'));
@@ -271,15 +305,17 @@ app.post('/api/students/upload', upload.single('file'), (req, res) => {
         students: sortedStudents
       });
     } else {
-      // 업로드 파일 삭제
-      fs.unlinkSync(filePath);
+      // 업로드 파일 삭제 (로컬 환경에서만)
+      if (tempFilePath && fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
       res.status(500).json({ error: '데이터 저장에 실패했습니다.' });
     }
   } catch (error) {
     console.error('엑셀 업로드 오류:', error);
-    // 업로드 파일 삭제
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
+    // 업로드 파일 삭제 (로컬 환경에서만)
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      fs.unlinkSync(tempFilePath);
     }
     res.status(500).json({ error: '파일 처리 중 오류가 발생했습니다.' });
   }
@@ -409,8 +445,8 @@ app.delete('/api/students', (req, res) => {
   }
 });
 
-// 프로덕션 환경에서 React 빌드 파일 서빙
-if (process.env.NODE_ENV === 'production') {
+// 프로덕션 환경에서 React 빌드 파일 서빙 (로컬 개발용)
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
   app.use(express.static(path.join(__dirname, '../client/build')));
   
   app.get('*', (req, res) => {
@@ -418,7 +454,12 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// 서버 시작
-app.listen(PORT, () => {
-  console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
-});
+// Vercel 서버리스 함수로 export 또는 로컬 서버 시작
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  // 로컬 개발 서버 시작
+  app.listen(PORT, () => {
+    console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
+  });
+}

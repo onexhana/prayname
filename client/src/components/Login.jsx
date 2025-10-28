@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config';
 
 const Login = ({ onLogin }) => {
   const [password, setPassword] = useState('');
@@ -12,7 +13,7 @@ const Login = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { password });
+      const response = await axios.post(`${API_BASE_URL}/api/login`, { password });
       if (response.data.success) {
         onLogin();
       }
