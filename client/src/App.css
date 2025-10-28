@@ -130,7 +130,7 @@ body {
 
 .student-name {
   font-family: 'Noto Serif KR', serif;
-  font-size: clamp(1.2rem, 3vw, 2rem);
+  /* font-size는 인라인 스타일로 동적으로 설정됩니다 */
   font-weight: 500;
   color: var(--text-primary);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
@@ -165,7 +165,7 @@ body {
 
 /* 즉시 시작되는 무한 스크롤 */
 .credits-content.immediate {
-  animation: scrollUpInfinite 600s linear infinite;
+  /* 애니메이션은 인라인 스타일로 동적으로 설정됩니다 */
   animation-delay: 0s;
 }
 
@@ -476,7 +476,7 @@ body {
   }
   
   .student-name {
-    font-size: clamp(1rem, 2.5vw, 1.8rem);
+    /* font-size는 인라인 스타일로 동적으로 설정됩니다 */
     min-width: 100px;
     padding: 0.4rem 0.8rem;
   }
@@ -508,7 +508,7 @@ body {
   }
   
   .student-name {
-    font-size: clamp(0.9rem, 2vw, 1.5rem);
+    /* font-size는 인라인 스타일로 동적으로 설정됩니다 */
     min-width: 70px;
     padding: 0.4rem 0.8rem;
     margin: 0.2rem;
@@ -522,7 +522,7 @@ body {
   }
   
   .student-name {
-    font-size: clamp(0.8rem, 1.8vw, 1.2rem);
+    /* font-size는 인라인 스타일로 동적으로 설정됩니다 */
     min-width: 70px;
     padding: 0.2rem 0.4rem;
   }

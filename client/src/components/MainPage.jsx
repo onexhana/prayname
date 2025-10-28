@@ -9,6 +9,7 @@ const MainPage = () => {
   const [settings, setSettings] = useState({ 
     scrollSpeed: 600, 
     fontSize: 2, 
+    studentsPerRow: 7,
     mobileScrollSpeed: 900, 
     mobileFontSize: 1.5, 
     mobileStudentsPerRow: 3 
@@ -25,8 +26,18 @@ const MainPage = () => {
       checkMobile();
     };
     
+    // 페이지 포커스 시 설정 다시 가져오기 (설정 변경 반영)
+    const handleFocus = () => {
+      fetchSettings();
+    };
+    
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const checkMobile = () => {
@@ -73,9 +84,13 @@ const MainPage = () => {
     infiniteStudents.push(...students);
   }
   
-  // 명단을 6개씩 그룹화하여 한 줄에 6명씩 표시
-  const groupSize = 6;
+  // 모바일/데스크톱에 따라 다른 그룹 크기 사용
+  const groupSize = isMobile ? settings.mobileStudentsPerRow : (settings.studentsPerRow || 7);
   const studentGroups = groupStudents(infiniteStudents, groupSize);
+  
+  // 현재 사용할 설정값 (모바일/데스크톱 구분)
+  const currentScrollSpeed = isMobile ? settings.mobileScrollSpeed : settings.scrollSpeed;
+  const currentFontSize = isMobile ? settings.mobileFontSize : settings.fontSize;
 
 
   // 로딩 중일 때도 기본 화면을 보여주고, 명단만 로딩 표시
@@ -119,13 +134,22 @@ const MainPage = () => {
 
       {students.length > 0 ? (
         <div className="credits-container">
-          <div className="credits-content immediate">
+          <div 
+            className="credits-content immediate"
+            style={{
+              animation: `scrollUpInfinite ${currentScrollSpeed}s linear infinite`,
+              animationDelay: '0s'
+            }}
+          >
             {studentGroups.map((group, groupIndex) => (
               <div key={`group-${groupIndex}`} className="student-row">
                 {group.map((student, studentIndex) => (
                   <div 
                     key={`${student}-${groupIndex}-${studentIndex}`} 
                     className="student-name"
+                    style={{
+                      fontSize: `${currentFontSize}rem`
+                    }}
                   >
                     {student}
                   </div>

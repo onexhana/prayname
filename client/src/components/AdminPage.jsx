@@ -21,6 +21,7 @@ const AdminPage = () => {
   const [settings, setSettings] = useState({ 
     scrollSpeed: 600, 
     fontSize: 2, 
+    studentsPerRow: 7,
     mobileScrollSpeed: 900, 
     mobileFontSize: 1.5, 
     mobileStudentsPerRow: 3 
@@ -384,6 +385,40 @@ const AdminPage = () => {
                 0.5rem ~ 5rem (현재: {settings.fontSize}rem)
               </small>
             </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="studentsPerRow">
+                한 줄당 학생 수
+              </label>
+              <input
+                type="number"
+                id="studentsPerRow"
+                className="form-input"
+                value={settings.studentsPerRow}
+                onChange={(e) => setSettings({...settings, studentsPerRow: parseInt(e.target.value) || 7})}
+                min="1"
+                max="10"
+                disabled={settingsLoading}
+              />
+              <small style={{ color: '#7f8c8d', marginTop: '0.5rem', display: 'block' }}>
+                1명 ~ 10명 (현재: {settings.studentsPerRow}명)
+              </small>
+            </div>
+            <button 
+              type="submit" 
+              className="btn btn-success"
+              disabled={settingsLoading}
+            >
+              {settingsLoading ? (
+                <>
+                  <div className="loading"></div>
+                  저장 중...
+                </>
+              ) : (
+                <>
+                  💾 설정 저장
+                </>
+              )}
+            </button>
           </form>
         </div>
 

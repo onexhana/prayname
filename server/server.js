@@ -74,6 +74,7 @@ function readSettings() {
       const defaultSettings = {
         scrollSpeed: 600, // 초 단위
         fontSize: 2, // rem 단위
+        studentsPerRow: 7, // 데스크톱용 한 줄당 학생 수
         mobileScrollSpeed: 900, // 모바일용 초 단위
         mobileFontSize: 1.5, // 모바일용 rem 단위
         mobileStudentsPerRow: 3 // 모바일용 한 줄당 학생 수
@@ -83,7 +84,7 @@ function readSettings() {
     }
   } catch (error) {
     console.error('설정 읽기 오류:', error);
-    return { scrollSpeed: 600, fontSize: 2, mobileScrollSpeed: 900, mobileFontSize: 1.5, mobileStudentsPerRow: 3 };
+    return { scrollSpeed: 600, fontSize: 2, studentsPerRow: 7, mobileScrollSpeed: 900, mobileFontSize: 1.5, mobileStudentsPerRow: 3 };
   }
 }
 
@@ -329,7 +330,7 @@ app.get('/api/settings', (req, res) => {
 // 7. 설정 업데이트
 app.put('/api/settings', (req, res) => {
   try {
-    const { scrollSpeed, fontSize, mobileScrollSpeed, mobileFontSize, mobileStudentsPerRow } = req.body;
+    const { scrollSpeed, fontSize, studentsPerRow, mobileScrollSpeed, mobileFontSize, mobileStudentsPerRow } = req.body;
     
     if (scrollSpeed && (scrollSpeed < 30 || scrollSpeed > 1800)) {
       return res.status(400).json({ error: '데스크톱 스크롤 속도는 30초에서 1800초 사이여야 합니다.' });
@@ -337,6 +338,10 @@ app.put('/api/settings', (req, res) => {
     
     if (fontSize && (fontSize < 0.5 || fontSize > 5)) {
       return res.status(400).json({ error: '데스크톱 글씨 크기는 0.5rem에서 5rem 사이여야 합니다.' });
+    }
+
+    if (studentsPerRow && (studentsPerRow < 1 || studentsPerRow > 10)) {
+      return res.status(400).json({ error: '데스크톱 한 줄당 학생 수는 1명에서 10명 사이여야 합니다.' });
     }
 
     if (mobileScrollSpeed && (mobileScrollSpeed < 30 || mobileScrollSpeed > 1800)) {
@@ -355,6 +360,7 @@ app.put('/api/settings', (req, res) => {
     const updatedSettings = {
       scrollSpeed: scrollSpeed !== undefined ? scrollSpeed : currentSettings.scrollSpeed,
       fontSize: fontSize !== undefined ? fontSize : currentSettings.fontSize,
+      studentsPerRow: studentsPerRow !== undefined ? studentsPerRow : (currentSettings.studentsPerRow || 7),
       mobileScrollSpeed: mobileScrollSpeed !== undefined ? mobileScrollSpeed : currentSettings.mobileScrollSpeed,
       mobileFontSize: mobileFontSize !== undefined ? mobileFontSize : currentSettings.mobileFontSize,
       mobileStudentsPerRow: mobileStudentsPerRow !== undefined ? mobileStudentsPerRow : currentSettings.mobileStudentsPerRow
