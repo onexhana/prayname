@@ -78,6 +78,9 @@ const MainPage = () => {
     return groups;
   };
 
+  // 설정이 변경되면 강제로 재렌더링되도록 key 사용
+  const settingsKey = `${currentScrollSpeed}-${currentFontSize}-${groupSize}-${isMobile}`;
+
   // 명단을 복제하여 무한 스크롤 구현 (모바일에서는 적게 복제)
   const infiniteStudents = [];
   const copyCount = isMobile ? 3 : 10; // 모바일은 3번, 데스크톱은 10번
@@ -92,6 +95,8 @@ const MainPage = () => {
   // 현재 사용할 설정값 (모바일/데스크톱 구분)
   const currentScrollSpeed = isMobile ? settings.mobileScrollSpeed : settings.scrollSpeed;
   const currentFontSize = isMobile ? settings.mobileFontSize : settings.fontSize;
+  
+  console.log('현재 설정:', { isMobile, currentScrollSpeed, currentFontSize, groupSize });
 
 
   // 로딩 중일 때도 기본 화면을 보여주고, 명단만 로딩 표시
@@ -136,6 +141,7 @@ const MainPage = () => {
       {students.length > 0 ? (
         <div className="credits-container">
           <div 
+            key={settingsKey}
             className="credits-content immediate"
             style={{
               animation: `scrollUpInfinite ${currentScrollSpeed}s linear infinite`,
@@ -146,7 +152,7 @@ const MainPage = () => {
               <div key={`group-${groupIndex}`} className="student-row">
                 {group.map((student, studentIndex) => (
                   <div 
-                    key={`${student}-${groupIndex}-${studentIndex}`} 
+                    key={`${student}-${groupIndex}-${studentIndex}-${currentFontSize}`} 
                     className="student-name"
                     style={{
                       fontSize: `${currentFontSize}rem`
