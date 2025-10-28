@@ -60,11 +60,21 @@ const settingsPath = path.join(__dirname, 'data', 'settings.json');
 // 데이터 읽기 함수
 function readData() {
   try {
+    // 파일이 존재하는지 먼저 확인
+    if (!fs.existsSync(dataPath)) {
+      console.log('students.json 파일이 없습니다. 기본값을 반환합니다.');
+      return { students: [], adminPassword: 'password' };
+    }
     const data = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    // adminPassword가 없으면 기본값 설정
+    if (!parsed.adminPassword) {
+      parsed.adminPassword = 'password';
+    }
+    return parsed;
   } catch (error) {
     console.error('데이터 읽기 오류:', error);
-    return { students: [], adminPassword: '' };
+    return { students: [], adminPassword: 'password' };
   }
 }
 
@@ -120,23 +130,32 @@ function writeSettings(settings) {
 // 1. 관리자 로그인
 app.post('/api/login', async (req, res) => {
   try {
+    console.log('로그인 요청 받음');
     const { password } = req.body;
+    console.log('비밀번호 받음:', password ? '비밀번호 있음' : '비밀번호 없음');
+    
     const data = readData();
+    console.log('데이터 읽기 완료, adminPassword:', data.adminPassword ? '설정됨' : '없음');
     
     if (!password) {
+      console.log('비밀번호가 없음');
       return res.status(400).json({ error: '비밀번호를 입력해주세요.' });
     }
 
     const isValid = password === data.adminPassword;
+    console.log('비밀번호 검증 결과:', isValid);
     
     if (isValid) {
-      res.json({ success: true, message: '로그인 성공' });
+      console.log('로그인 성공');
+      return res.json({ success: true, message: '로그인 성공' });
     } else {
-      res.status(401).json({ error: '비밀번호가 올바르지 않습니다.' });
+      console.log('비밀번호 불일치');
+      return res.status(401).json({ error: '비밀번호가 올바르지 않습니다.' });
     }
   } catch (error) {
     console.error('로그인 오류:', error);
-    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    console.error('오류 스택:', error.stack);
+    return res.status(500).json({ error: '서버 오류가 발생했습니다. ' + error.message });
   }
 });
 
