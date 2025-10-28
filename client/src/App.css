@@ -45,7 +45,7 @@ body {
 
 .main-title {
   font-family: 'Noto Serif KR', serif;
-  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 1rem;
@@ -64,11 +64,12 @@ body {
 }
 
 .student-count {
-  font-size: clamp(1rem, 3vw, 1.4rem);
-  color: var(--text-primary);
-  font-weight: 500;
-  margin-top: 1rem;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  color: #95a5a6;
+  font-weight: 400;
+  margin-top: 0.5rem;
   animation: fadeInUp 1s ease-out 0.6s both;
+  opacity: 0.7;
 }
 
 /* 영화 크레딧 스크롤 컨테이너 */
@@ -551,14 +552,10 @@ body {
   }
   
   .main-title {
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    font-size: clamp(1.2rem, 4vw, 2rem);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  
-  .main-subtitle {
-    font-size: clamp(1rem, 3vw, 1.4rem);
   }
 }
 

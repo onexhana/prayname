@@ -105,7 +105,6 @@ const MainPage = () => {
       <div className="main-container">
         <div className="main-header">
           <h1 className="main-title">2026 수능 수험생 기도 명단</h1>
-          <p className="main-subtitle">모두의 합격을 기원합니다 🙏</p>
           <div className="loading"></div>
           <p style={{ marginTop: '1rem', color: '#7f8c8d' }}>명단을 불러오는 중...</p>
         </div>
@@ -118,7 +117,6 @@ const MainPage = () => {
       <div className="main-container">
         <div className="main-header">
           <h1 className="main-title">2026 수능 수험생 기도 명단</h1>
-          <p className="main-subtitle">모두의 합격을 기원합니다 🙏</p>
           <div className="message message-error">
             {error}
           </div>
@@ -131,7 +129,6 @@ const MainPage = () => {
     <div className="main-container">
       <div className="main-header">
         <h1 className="main-title">2026 수능 수험생 기도 명단</h1>
-        <p className="main-subtitle">모두의 합격을 기원합니다 🙏</p>
         <div className="student-count">
           총 {students.length}명의 수험생이 등록되어 있습니다
           {loading && <span style={{ marginLeft: '1rem', color: '#7f8c8d' }}>업데이트 중...</span>}
