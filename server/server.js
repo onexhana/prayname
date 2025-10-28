@@ -112,6 +112,11 @@ function writeData(data) {
 // 설정 읽기 함수
 function readSettings() {
   try {
+    // 디렉토리 확인 및 생성
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    
     if (fs.existsSync(settingsPath)) {
       const data = fs.readFileSync(settingsPath, 'utf8');
       return JSON.parse(data);
@@ -121,7 +126,7 @@ function readSettings() {
         scrollSpeed: 600, // 초 단위
         fontSize: 2, // rem 단위
         studentsPerRow: 7, // 데스크톱용 한 줄당 학생 수
-        mobileScrollSpeed: 900, // 모바일용 초 단위
+        mobileScrollSpeed: 1800, // 모바일용 초 단위
         mobileFontSize: 1.5, // 모바일용 rem 단위
         mobileStudentsPerRow: 3 // 모바일용 한 줄당 학생 수
       };
@@ -130,7 +135,8 @@ function readSettings() {
     }
   } catch (error) {
     console.error('설정 읽기 오류:', error);
-    return { scrollSpeed: 600, fontSize: 2, studentsPerRow: 7, mobileScrollSpeed: 900, mobileFontSize: 1.5, mobileStudentsPerRow: 3 };
+    console.error('경로:', settingsPath);
+    return { scrollSpeed: 600, fontSize: 2, studentsPerRow: 7, mobileScrollSpeed: 1800, mobileFontSize: 1.5, mobileStudentsPerRow: 3 };
   }
 }
 
