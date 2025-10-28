@@ -54,13 +54,23 @@ const upload = multer({
 });
 
 // 데이터 파일 경로
-const dataPath = path.join(__dirname, 'data', 'students.json');
-const settingsPath = path.join(__dirname, 'data', 'settings.json');
+// Vercel 서버리스 환경에서는 /tmp 디렉토리 사용 (쓰기 가능)
+const dataDir = process.env.VERCEL || process.env.VERCEL_ENV
+  ? '/tmp/data'  // 서버리스 환경: /tmp 디렉토리
+  : path.join(__dirname, 'data');  // 로컬 환경: 상대 경로
+
+const dataPath = path.join(dataDir, 'students.json');
+const settingsPath = path.join(dataDir, 'settings.json');
 
 // 데이터 읽기 함수
 function readData() {
   try {
-    // 파일이 존재하는지 먼저 확인
+    // 먼저 data 디렉토리 확인 및 생성
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    
+    // 파일이 존재하는지 확인
     if (!fs.existsSync(dataPath)) {
       console.log('students.json 파일이 없습니다. 기본값을 반환합니다.');
       return { students: [], adminPassword: 'password' };
@@ -74,6 +84,7 @@ function readData() {
     return parsed;
   } catch (error) {
     console.error('데이터 읽기 오류:', error);
+    console.error('경로:', dataPath);
     return { students: [], adminPassword: 'password' };
   }
 }
@@ -81,10 +92,19 @@ function readData() {
 // 데이터 쓰기 함수
 function writeData(data) {
   try {
+    // 디렉토리가 존재하는지 확인하고 없으면 생성
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+      console.log('데이터 디렉토리 생성:', dataDir);
+    }
+    
     fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+    console.log('데이터 저장 성공:', dataPath);
     return true;
   } catch (error) {
     console.error('데이터 쓰기 오류:', error);
+    console.error('경로:', dataPath);
+    console.error('데이터 디렉토리:', dataDir);
     return false;
   }
 }
@@ -117,10 +137,10 @@ function readSettings() {
 // 설정 쓰기 함수
 function writeSettings(settings) {
   try {
-    // Vercel 서버리스 환경에서는 data 디렉토리가 존재하는지 확인
-    const dataDir = path.dirname(settingsPath);
+    // 디렉토리가 존재하는지 확인하고 없으면 생성
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
+      console.log('데이터 디렉토리 생성:', dataDir);
     }
     
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
@@ -130,6 +150,7 @@ function writeSettings(settings) {
     console.error('설정 쓰기 오류:', error);
     console.error('오류 상세:', error.message);
     console.error('경로:', settingsPath);
+    console.error('데이터 디렉토리:', dataDir);
     return false;
   }
 }
