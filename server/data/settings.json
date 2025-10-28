@@ -2,7 +2,7 @@
   "scrollSpeed": 600,
   "fontSize": 2,
   "studentsPerRow": 7,
-  "mobileScrollSpeed": 900,
+  "mobileScrollSpeed": 1800,
   "mobileFontSize": 1.6,
   "mobileStudentsPerRow": 3
 }

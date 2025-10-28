@@ -10,7 +10,7 @@ const MainPage = () => {
     scrollSpeed: 600, 
     fontSize: 2, 
     studentsPerRow: 7,
-    mobileScrollSpeed: 900, 
+    mobileScrollSpeed: 1800, 
     mobileFontSize: 1.5, 
     mobileStudentsPerRow: 3 
   });
